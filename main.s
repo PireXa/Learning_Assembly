@@ -1,11 +1,16 @@
+.intel_syntax noprefix
+
+//Define read-only variables, rdx is a 64-bit register so the numbers need to also be 64-bit and .quad is used to define the numbers.
+//Can use .long (32-bit) instead but the register using these variables needs to also change to a 32-bit one, in this case edx.
 .section .rodata
 
 display_string: .asciz "Enter a number: "
-len_display_string: .int 17
-//this len_display_string doesnt work for some reason even though gdb prints the right value for it rdx gets a random value
 
-mensagem: .asciz "22"
-len_mensagem: .int 2
+mensagem: .asciz "Inputed number: "
+
+len_display_string: .quad 17
+
+len_mensagem: .quad 16
 
 .section .bss
 buffer: .skip 32
@@ -13,7 +18,6 @@ buffer: .skip 32
 .section .text
 
 .global _start
-.intel_syntax noprefix
 
 .global _escritor
 
@@ -25,9 +29,9 @@ _escritor:
 
 _start:
 	//escrever
-	lea rsi, [display_string]
-	mov rdx, 17
-	call _escritor 
+	lea rsi, [rip + display_string]
+	mov rdx, [rip + len_display_string]
+	call _escritor
 
 	//read
 	mov rax, 0
@@ -36,7 +40,13 @@ _start:
 	mov rdx, 32
 	syscall
 
-	lea rsi, [buffer]
+	//escrever
+	lea rsi, [rip + mensagem]
+	mov rdx, [rip + len_mensagem]
+	call _escritor
+
+	//escrever
+	lea rsi, [rip + buffer]
 	mov rdx, 32
 	call _escritor
 
